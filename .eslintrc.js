@@ -21,6 +21,7 @@ module.exports = {
     'max-len': 'off',
     'no-void': 'off',
     'no-console': 'off',
+    'no-restricted-syntax': 'off',
     'no-useless-constructor': 'off',
     'no-use-before-define': 'off',
     'no-shadow': 'off',
