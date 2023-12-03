@@ -4,8 +4,7 @@ import path from 'path';
 const puzzle = 'Puzzle 01A';
 console.time(puzzle);
 const filePath = path.join(__dirname, 'input.txt');
-const content = fs.readFileSync(filePath, { encoding: 'utf-8' });
-const lines = content.split('\n');
+const lines = fs.readFileSync(filePath, { encoding: 'utf-8' }).trim().split('\n');
 
 const regExp = /(\d+)/g;
 let sum = 0;
@@ -17,5 +16,31 @@ for (const line of lines) {
   sum += parseInt(numericString, 10);
 }
 
-console.log(`Result: ${sum}`);
+console.log('Result:', sum);
 console.timeEnd(puzzle);
+
+// ChatGPT code
+
+const puzzleGPT = 'Chat GPT Puzzle 01A';
+console.time(puzzleGPT);
+
+// Read the calibration document from a file (replace 'input.txt' with your file name)
+const input = fs.readFileSync(filePath, 'utf-8').trim().split('\n');
+
+// Function to calculate the calibration value for a single line
+function getCalibrationValue(line: string) {
+  const regex = /\d/g;
+
+  const matches = line.match(regex);
+  const result = matches ? matches.join('') : '';
+  const firstDigit = parseInt(result[0], 10);
+  const lastDigit = parseInt(result[result.length - 1], 10);
+  return firstDigit * 10 + lastDigit;
+}
+
+// Calculate the sum of all calibration values
+const sum2 = input.reduce((acc, line: string) => acc + getCalibrationValue(line), 0);
+
+// Output the result
+console.log('Sum of calibration values:', sum2);
+console.timeEnd(puzzleGPT);
