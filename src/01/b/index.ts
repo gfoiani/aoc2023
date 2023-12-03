@@ -50,5 +50,41 @@ function getCalibrationValue(line: string) {
 
 const sum = lines.reduce((acc, line: string) => acc + getCalibrationValue(line), 0);
 
-console.log('Result:', sum);
+console.log('Sum of calibration values:', sum);
 console.timeEnd(puzzle);
+
+// ChatGPT code
+
+const puzzleGPT = 'Chat GPT Puzzle 01B';
+console.time(puzzleGPT);
+
+// Read the calibration document from a file (replace 'input.txt' with your file name)
+const input = fs.readFileSync(filePath, 'utf-8').trim().split('\n');
+
+// Function to calculate the calibration value for a single line
+function getCalibrationValueGPT(line: string) {
+  // Use a regular expression to match all digits, spelled out or not
+  const regex = /(zero|one|two|three|four|five|six|seven|eight|nine)|\d/g;
+  const matches = line.match(regex);
+
+  // Convert spelled-out digits to corresponding numeric values
+  const numericDigits = matches?.map((match) => {
+    if (/\d/.test(match)) {
+      return parseInt(match, 10);
+    }
+    const spelledOutDigits = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+    return spelledOutDigits.indexOf(match);
+  });
+
+  // Combine the first and last numeric digits to form the calibration value
+  const res = numericDigits[0] * 10 + numericDigits[numericDigits.length - 1]
+  return res;
+}
+
+// Calculate the sum of all calibration values
+const sum2 = input.reduce((acc, line: string) => acc + getCalibrationValueGPT(line), 0);
+
+// Output the result
+// FIXME: the solution should be ok but the result is wrong....
+console.log('Sum of calibration values:', sum2);
+console.timeEnd(puzzleGPT);
