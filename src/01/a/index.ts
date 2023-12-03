@@ -3,7 +3,7 @@ import path from 'path';
 
 const puzzle = 'Puzzle 01A';
 console.time(puzzle);
-const filePath = path.join(__dirname, 'input.txt');
+const filePath = path.join(__dirname, '..', 'input.txt');
 const lines = fs.readFileSync(filePath, { encoding: 'utf-8' }).trim().split('\n');
 
 const regExp = /(\d+)/g;
