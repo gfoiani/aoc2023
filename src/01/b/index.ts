@@ -77,7 +77,7 @@ function getCalibrationValueGPT(line: string) {
   });
 
   // Combine the first and last numeric digits to form the calibration value
-  const res = numericDigits[0] * 10 + numericDigits[numericDigits.length - 1]
+  const res = numericDigits[0] * 10 + numericDigits[numericDigits.length - 1];
   return res;
 }
 
