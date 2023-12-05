@@ -9,5 +9,5 @@ In this repo I'll be posting my solutions written in NodeJS.
 ## Run a puzzle
 
 ```NodeJS
-node -r ts-node/register src/[day]/index.ts
+node -r ts-node/register src/[day]/[a|b]/index.ts
 ```
