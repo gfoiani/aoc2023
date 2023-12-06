@@ -26,14 +26,15 @@ function extractComponents(idx: number): number {
     let isComponent = false;
     const { index } = match;
     const value = match['0'];
+    // check adjacent characters
     const nextToChars = `${line[index - 1]}${line[index + value.length]}`;
     isComponent = notNumberOrDotRegex.test(nextToChars);
-    // if adjacent characters are not symbols check the previous line
+    // if adjacent characters are not symbols, check the previous line
     if (!isComponent && prevLine) {
       const prevLineChars = prevLine.substring(index - 1, index + value.length + 1);
       isComponent = notNumberOrDotRegex.test(prevLineChars);
     }
-    // if adjacent characters are not symbols check the next line
+    // if no adjacent symbols are found in the previous line, check the next line
     if (!isComponent && nextLine) {
       const nextLineChars = nextLine.substring(index - 1, index + value.length + 1);
       isComponent = notNumberOrDotRegex.test(nextLineChars);
