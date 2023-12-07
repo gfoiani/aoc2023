@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { first, last } from 'lodash';
 
 import { getPuzzleName } from '../../utils';
 
