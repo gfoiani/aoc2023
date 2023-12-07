@@ -31,12 +31,11 @@ function extractGears(idx: number): number {
     let matchCount = 0;
 
     [prevLine, line, nextLine].forEach((currentLine) => {
-      let lineCount = 0;
-      if (currentLine) {
+      if (currentLine && matchCount < 2) {
         // check adjacent characters if they are numbers is a gear
         const numbersRegexGlobal = /(\d+)/g;
         let lineMatch = numbersRegexGlobal.exec(currentLine);
-        while (lineMatch !== null && lineCount < 2) {
+        while (lineMatch !== null && matchCount < 2) {
           const { index: matchStart } = lineMatch;
           const currentValue = lineMatch['0'];
           const { length } = currentValue;
@@ -44,7 +43,6 @@ function extractGears(idx: number): number {
           if (matchStart >= (gearIndex - length) && matchEnd <= (gearIndex + length)) {
             values.push(parseInt(currentValue, 10));
             matchCount += 1;
-            lineCount += 1;
           }
           lineMatch = numbersRegexGlobal.exec(currentLine);
         }
