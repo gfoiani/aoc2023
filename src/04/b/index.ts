@@ -21,13 +21,11 @@ function calculateWinningPoints(line: string, index: number) {
   // console.log('cardNumbers', cardNumbers);
   const cardWinningNumbers = intersection(compact(winningNumbers.split(' ')), compact(cardNumbers.split(' ')));
   const currentCardInstances = (instances[`${index}`] || 0) + 1;
-  times(currentCardInstances, () => {
-    times(cardWinningNumbers.length, (idx: number) => {
-      const cardIndex = index + idx + 1;
-      if (cardIndex <= input.length) {
-        instances[`${cardIndex}`] = (instances[`${cardIndex}`] || 0) + 1;
-      }
-    });
+  times(cardWinningNumbers.length, (idx: number) => {
+    const cardIndex = index + idx + 1;
+    if (cardIndex <= input.length) {
+      instances[`${cardIndex}`] = (instances[`${cardIndex}`] || 0) + currentCardInstances;
+    }
   });
 }
 
