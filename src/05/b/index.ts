@@ -24,30 +24,27 @@ function createMap(mapInput: string) {
   const key = header.split(' ')[0];
   const categoryMaps: CategoryMap[] = [];
   for (const line of lines) {
-    const [dest, source, size] = line.trim().split(' ').map((el) => parseInt(el, 10));
+    const [dest, source, size] = line.trim().split(' ').map(Number);
     categoryMaps.push({ source, dest, size });
   }
   map.set(key, categoryMaps);
 }
 
 function navigateMap(idx: number, size: number): number {
-  let minFound = idx;
-  console.log('idx', idx);
-  console.log('size', size);
-  for (let index = idx; index < (idx + size); index += 1) {
-    let found = index;
+  let minFound: number;
+  for (let index = 0; index < size; index += 1) {
+    let found = idx + index;
     for (const categoryMaps of map.values()) {
       // eslint-disable-next-line no-loop-func
       const foundMap = categoryMaps.find((c) => (found >= c.source) && (found < (c.source + c.size)));
       if (foundMap) {
-        // console.log('foundMap', foundMap);
         const diff = found - foundMap.source;
         found = foundMap.dest + diff;
       }
     }
     minFound = min([minFound, found]);
   }
-
+  // console.log(`idx: ${idx}, size: ${size}, minFound: ${minFound}`);
   return minFound;
 }
 
@@ -63,7 +60,7 @@ input.forEach(createMap);
 // console.log('map', map);
 
 for (const seedLine of seeds) {
-  const [seed, size] = seedLine.split(' ').map((el) => parseInt(el, 10));
+  const [seed, size] = seedLine.split(' ').map(Number);
   locations.push(navigateMap(seed, size));
 }
 
