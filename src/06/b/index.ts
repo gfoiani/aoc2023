@@ -30,7 +30,7 @@ if (isMainThread) {
   console.log('time', time);
   console.log('distance', distance);
 
-  const workersCount = 100;
+  const workersCount = 3;
   const step = Math.floor(time / workersCount);
   const remainingTimes = time % workersCount;
 
