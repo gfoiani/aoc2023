@@ -40,48 +40,60 @@ function navigateMap(map: Map<string, CategoryMap[]>, idx: number, size: number)
   return minFound;
 }
 
-if (isMainThread) {
-  const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
+void (async () => {
+  if (isMainThread) {
+    const puzzle = getPuzzleName(__filename);
 
-  const filePath = path.join(__dirname, 'input.txt');
+    const filePath = path.join(__dirname, 'input.txt');
 
-  console.time(puzzle);
-  // split on empty lines
-  const input = fs.readFileSync(filePath, { encoding: 'utf-8' }).trim().split(/\n\s*\n/);
+    console.time(puzzle);
+    // split on empty lines
+    const input = fs.readFileSync(filePath, { encoding: 'utf-8' }).trim().split(/\n\s*\n/);
 
-  const workers: { [key: number]: Worker } = {};
-  const map = new Map<string, CategoryMap[]>();
-  const locations: number[] = [];
+    const workers: { [key: number]: Worker } = {};
+    const map = new Map<string, CategoryMap[]>();
+    // const locations: number[] = [];
 
-  const regex = /\d+\s*\d+/g;
-  const [, seedsString] = input.shift().split(': ');
-  const seeds = seedsString.match(regex);
-  console.log('seeds', seeds);
+    const regex = /\d+\s*\d+/g;
+    const [, seedsString] = input.shift().split(': ');
+    const seeds = seedsString.match(regex);
+    // console.log('seeds', seeds);
 
-  input.forEach((i) => createMap(map, i));
-  // console.log('map', map);
+    input.forEach((i) => createMap(map, i));
+    // console.log('map', map);
 
-  for (const seedLine of seeds) {
-    const [seed, size] = seedLine.split(' ').map(Number);
-    const worker = new Worker(__filename, { workerData: { map, seed, size } });
-    worker.on('message', (msg: { minFound: number }) => {
-      const { minFound } = msg;
-      console.log('Worker message received', minFound);
-      locations.push(minFound);
-      if (locations.length === seeds.length) {
-        const res = min(locations);
+    const promises = [];
+    for (const seedLine of seeds) {
+      const promise = new Promise((resolve) => {
+        const [seed, size] = seedLine.split(' ').map(Number);
+        const worker = new Worker(__filename, { workerData: { map, seed, size } });
+        worker.on('message', (msg: { minFound: number }) => {
+          const { minFound } = msg;
+          resolve(minFound);
+          // console.log('Worker message received', minFound);
+          // locations.push(minFound);
+          // if (locations.length === seeds.length) {
+          //   const res = min(locations);
 
-        console.log('Result:', res);
-        console.timeEnd(puzzle);
-      }
-    });
-    worker.on('error', (err) => console.error(err));
-    worker.on('exit', (code) => console.log(`Worker exited with code ${code}.`));
-    workers[seed] = worker;
+        //   console.log('Result:', res);
+        //   console.timeEnd(puzzle);
+        // }
+        });
+        worker.on('error', (err) => console.error(err));
+        // worker.on('exit', (code) => console.log(`Worker exited with code ${code}.`));
+        workers[seed] = worker;
+      });
+      promises.push(promise);
+    }
+
+    const locations = await Promise.all<number>(promises);
+    const res = min(locations);
+    console.log('Result:', res);
+    console.timeEnd(puzzle);
+  } else {
+    const { map, seed, size } = workerData as { map: Map<string, CategoryMap[]>, seed: number, size: number };
+    // console.log(`Started workeridx: ${seed}, size: ${size}`);
+    const minFound = navigateMap(map, seed, size);
+    parentPort.postMessage({ minFound });
   }
-} else {
-  const { map, seed, size } = workerData as { map: Map<string, CategoryMap[]>, seed: number, size: number };
-  console.log(`Started workeridx: ${seed}, size: ${size}`);
-  const minFound = navigateMap(map, seed, size);
-  parentPort.postMessage({ minFound });
-}
+})();

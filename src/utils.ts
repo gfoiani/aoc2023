@@ -2,7 +2,7 @@ import path from 'path';
 
 export function getPuzzleName(input: string): string {
   const elements = input.split(path.sep);
-  const level = elements.pop();
+  const level = elements.pop().replace('.ts', '');
   const day = elements.pop();
-  return `${day} ${level.toUpperCase()}`;
+  return `Puzzle ${day} ${level.toUpperCase()}`;
 }

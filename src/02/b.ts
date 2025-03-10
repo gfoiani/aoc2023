@@ -4,7 +4,7 @@ import { max } from 'lodash';
 
 import { getPuzzleName } from '../utils';
 
-const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
+const puzzle = getPuzzleName(__filename);
 
 const filePath = path.join(__dirname, 'input.txt');
 

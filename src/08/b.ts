@@ -27,7 +27,7 @@ function extractWords(text: string): string[] {
 
 export type DirectionType = typeof DirectionTypes[keyof typeof DirectionTypes];
 
-const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
+const puzzle = getPuzzleName(__filename);
 
 const filePath = path.join(__dirname, 'input.txt');
 
@@ -39,77 +39,90 @@ function lcmFunc(a: number, b: number): number {
   return (a * b) / gcd(a, b);
 }
 
-if (isMainThread) {
-  console.time(puzzle);
+void (async () => {
+  if (isMainThread) {
+    console.time(puzzle);
 
-  const [d, ...s] = fs
-    .readFileSync(filePath, { encoding: 'utf-8' })
-    .trim()
-    .split('\n')
-    .filter((line) => line.length > 0);
+    const [d, ...s] = fs
+      .readFileSync(filePath, { encoding: 'utf-8' })
+      .trim()
+      .split('\n')
+      .filter((line) => line.length > 0);
 
-  const directions = d.split('');
+    const directions = d.split('');
 
-  const steps: Steps = {};
-  for (const step of s) {
-    const [source, left, right] = extractWords(step);
-    steps[source] = { L: left, R: right };
-  }
+    const steps: Steps = {};
+    for (const step of s) {
+      const [source, left, right] = extractWords(step);
+      steps[source] = { L: left, R: right };
+    }
 
-  const start = 'A';
-  const end = 'Z';
-  const startingPoints = Object.keys(steps).filter((key) => key.endsWith(start));
+    const start = 'A';
+    const end = 'Z';
+    const startingPoints = Object.keys(steps).filter((key) => key.endsWith(start));
 
-  const workerCount = startingPoints.length; // Create one worker per starting point
-  const results: number[] = [];
-  let completedWorkers = 0;
+    const workerCount = startingPoints.length; // Create one worker per starting point
+    // const results: number[] = [];
+    // let completedWorkers = 0;
 
-  for (let i = 0; i < workerCount; i += 1) {
-    const worker = new Worker(__filename, {
-      workerData: {
-        directions,
-        steps,
-        startPoint: startingPoints[i],
-        end,
-      },
-    });
+    const promises = [];
+    for (let i = 0; i < workerCount; i += 1) {
+      const promise = new Promise((resolve) => {
+        const worker = new Worker(__filename, {
+          workerData: {
+            directions,
+            steps,
+            startPoint: startingPoints[i],
+            end,
+          },
+        });
 
-    worker.on('message', (count: number) => {
-      results[i] = count;
-      completedWorkers += 1;
+        worker.on('message', (count: number) => {
+          resolve(count);
+          // results[i] = count;
+          // completedWorkers += 1;
 
-      if (completedWorkers === workerCount) {
-        // All workers finished, calculate the least common multiple (LCM)
-        const lcm = results.reduce((acc, val) => lcmFunc(acc, val), 1);
-        console.log('Res:', lcm);
-        console.timeEnd(puzzle);
-      }
-    });
-  }
-} else {
-  // Worker code
-  const { directions, steps, startPoint, end } = workerData as {
-    directions: string[];
-    steps: Steps;
-    startPoint: string;
-    end: string;
-  };
+          // if (completedWorkers === workerCount) {
+          // // All workers finished, calculate the least common multiple (LCM)
+          //   const lcm = results.reduce((acc, val) => lcmFunc(acc, val), 1);
+          //   console.log('Res:', lcm);
+          //   console.timeEnd(puzzle);
+          // }
+        });
+      });
+      promises.push(promise);
+    }
 
-  let count = 0;
-  let currentPoint = startPoint;
-  let completed = false;
+    // All workers finished, calculate the least common multiple (LCM)
+    const results = await Promise.all<number>(promises);
+    const lcm = results.reduce((acc, val) => lcmFunc(acc, val), 1);
+    console.log('Result:', lcm);
+    console.timeEnd(puzzle);
+  } else {
+    // Worker code
+    const { directions, steps, startPoint, end } = workerData as {
+      directions: string[];
+      steps: Steps;
+      startPoint: string;
+      end: string;
+    };
 
-  while (!completed) {
-    for (let index = 0; index < directions.length; index += 1) {
-      const element = directions[index];
-      currentPoint = element === DirectionTypes.Left ? steps[currentPoint].L : steps[currentPoint].R;
-      count += 1;
-      if (currentPoint.endsWith(end)) {
-        completed = true;
-        break;
+    let count = 0;
+    let currentPoint = startPoint;
+    let completed = false;
+
+    while (!completed) {
+      for (let index = 0; index < directions.length; index += 1) {
+        const element = directions[index];
+        currentPoint = element === DirectionTypes.Left ? steps[currentPoint].L : steps[currentPoint].R;
+        count += 1;
+        if (currentPoint.endsWith(end)) {
+          completed = true;
+          break;
+        }
       }
     }
-  }
 
-  parentPort?.postMessage(count);
-}
+    parentPort?.postMessage(count);
+  }
+})();

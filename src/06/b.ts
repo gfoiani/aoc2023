@@ -14,54 +14,67 @@ function calculateWinningCombiations(startTime: number, endTime: number, totalTi
   return winningCombiations;
 }
 
-if (isMainThread) {
-  const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
+void (async () => {
+  if (isMainThread) {
+    const puzzle = getPuzzleName(__filename);
 
-  const filePath = path.join(__dirname, 'input.txt');
+    const filePath = path.join(__dirname, 'input.txt');
 
-  console.time(puzzle);
-  // split on empty lines
-  const input = fs.readFileSync(filePath, { encoding: 'utf-8' }).trim().split('\n');
+    console.time(puzzle);
+    // split on empty lines
+    const input = fs.readFileSync(filePath, { encoding: 'utf-8' }).trim().split('\n');
 
-  const time = Number(input[0].match(/(\d+)/g).join(''));
-  const distance = Number(input[1].match(/(\d+)/g).join(''));
-  const solutions: number[] = [];
+    const time = Number(input[0].match(/(\d+)/g).join(''));
+    const distance = Number(input[1].match(/(\d+)/g).join(''));
+    // const solutions: number[] = [];
 
-  console.log('time', time);
-  console.log('distance', distance);
+    // console.log('time', time);
+    // console.log('distance', distance);
 
-  const workersCount = 3;
-  const step = Math.floor(time / workersCount);
-  const remainingTimes = time % workersCount;
+    const workersCount = 3;
+    const step = Math.floor(time / workersCount);
+    const remainingTimes = time % workersCount;
 
-  console.log('workersCount:', workersCount);
-  console.log('remainingTimes:', remainingTimes);
-  console.log('step:', step);
+    // console.log('workersCount:', workersCount);
+    // console.log('remainingTimes:', remainingTimes);
+    // console.log('step:', step);
 
-  for (let index = 0; index < (workersCount + 1); index += 1) {
-    const startTime = step * index;
-    let endTime = step * (index + 1);
-    if (endTime > time) { endTime = startTime + remainingTimes; }
-    const worker = new Worker(__filename, { workerData: { index, startTime, endTime, distance, totalTime: time } });
-    worker.on('error', (err) => console.error(err));
-    worker.on('message', (msg: { winningCombiations: number }) => {
-      const { winningCombiations } = msg;
-      // console.log('Worker message received', winningCombiations);
-      solutions.push(winningCombiations);
-      if (solutions.length === (workersCount + 1)) {
-        const res = solutions.reduce((a, b) => a + b, 0);
+    const promises = [];
+    for (let index = 0; index < (workersCount + 1); index += 1) {
+      const promise = new Promise((resolve) => {
+        const startTime = step * index;
+        let endTime = step * (index + 1);
+        if (endTime > time) { endTime = startTime + remainingTimes; }
+        const worker = new Worker(__filename, { workerData: { index, startTime, endTime, distance, totalTime: time } });
+        worker.on('error', (err) => console.error(err));
+        worker.on('message', (msg: { winningCombiations: number }) => {
+          const { winningCombiations } = msg;
+          resolve(winningCombiations);
+          // // console.log('Worker message received', winningCombiations);
+          // solutions.push(winningCombiations);
+          // if (solutions.length === (workersCount + 1)) {
+          //   const res = solutions.reduce((a, b) => a + b, 0);
 
-        setTimeout(() => {
-          console.log('Result:', res);
-          console.timeEnd(puzzle);
-        }, 10);
-      }
-    });
+        //   setTimeout(() => {
+        //     console.log('Result:', res);
+        //     console.timeEnd(puzzle);
+        //   }, 10);
+        // }
+        });
+      });
+
+      promises.push(promise);
+    }
+
+    const solutions = await Promise.all<number>(promises);
+    const res = solutions.reduce((a, b) => a + b, 0);
+    console.log('Result:', res);
+    console.timeEnd(puzzle);
+  } else {
+    const { startTime, endTime, distance, totalTime } = workerData as { index: number, startTime: number, endTime: number, distance: number, totalTime: number };
+    // console.log(`Worker ${index + 1}. startTime: ${startTime}, endTime: ${endTime}, totalTime: ${totalTime}, distance: ${distance}`);
+    const winningCombiations = calculateWinningCombiations(startTime, endTime, totalTime, distance);
+    // console.log(`Worker ${index + 1}. winningCombiations: ${winningCombiations}`);
+    parentPort.postMessage({ winningCombiations });
   }
-} else {
-  const { startTime, endTime, distance, totalTime, index } = workerData as { index: number, startTime: number, endTime: number, distance: number, totalTime: number };
-  console.log(`Worker ${index + 1}. startTime: ${startTime}, endTime: ${endTime}, totalTime: ${totalTime}, distance: ${distance}`);
-  const winningCombiations = calculateWinningCombiations(startTime, endTime, totalTime, distance);
-  console.log(`Worker ${index + 1}. winningCombiations: ${winningCombiations}`);
-  parentPort.postMessage({ winningCombiations });
-}
+})();

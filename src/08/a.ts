@@ -25,7 +25,7 @@ function extractWords(text: string): string[] {
 
 export type DirectionType = typeof DirectionTypes[keyof typeof DirectionTypes];
 
-const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
+const puzzle = getPuzzleName(__filename);
 
 const filePath = path.join(__dirname, 'input.txt');
 

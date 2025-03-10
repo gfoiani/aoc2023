@@ -3,7 +3,7 @@ import path from 'path';
 
 import { getPuzzleName } from '../utils';
 
-const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
+const puzzle = getPuzzleName(__filename);
 
 const filePath = path.join(__dirname, 'input.txt');
 

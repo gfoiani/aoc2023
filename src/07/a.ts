@@ -80,7 +80,7 @@ function sort(a: string, b: string): number {
   return sort(a.slice(1), b.slice(1));
 }
 
-const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
+const puzzle = getPuzzleName(__filename);
 
 const filePath = path.join(__dirname, 'input.txt');
 
