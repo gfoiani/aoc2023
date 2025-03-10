@@ -4,7 +4,7 @@ import { min, max } from 'lodash';
 
 const puzzle = 'Puzzle 01B';
 console.time(puzzle);
-const filePath = path.join(__dirname, '..', 'input.txt');
+const filePath = path.join(__dirname, 'input.txt');
 const lines = fs.readFileSync(filePath, { encoding: 'utf-8' }).trim().split('\n');
 
 const numbersInLetters: string[] = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];

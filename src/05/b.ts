@@ -3,7 +3,7 @@ import path from 'path';
 import { min } from 'lodash';
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
 
-import { getPuzzleName } from '../../utils';
+import { getPuzzleName } from '../utils';
 
 interface CategoryMap {
   source: number;
@@ -43,7 +43,7 @@ function navigateMap(map: Map<string, CategoryMap[]>, idx: number, size: number)
 if (isMainThread) {
   const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
 
-  const filePath = path.join(__dirname, '..', 'input.txt');
+  const filePath = path.join(__dirname, 'input.txt');
 
   console.time(puzzle);
   // split on empty lines

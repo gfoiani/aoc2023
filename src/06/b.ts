@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
 
-import { getPuzzleName } from '../../utils';
+import { getPuzzleName } from '../utils';
 
 function calculateWinningCombiations(startTime: number, endTime: number, totalTime: number, record: number) {
   let winningCombiations = 0;
@@ -17,7 +17,7 @@ function calculateWinningCombiations(startTime: number, endTime: number, totalTi
 if (isMainThread) {
   const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
 
-  const filePath = path.join(__dirname, '..', 'input.txt');
+  const filePath = path.join(__dirname, 'input.txt');
 
   console.time(puzzle);
   // split on empty lines

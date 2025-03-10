@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import _ from 'lodash';
 
-import { getPuzzleName } from '../../utils';
+import { getPuzzleName } from '../utils';
 
 const HandTypes = {
   Invalid: 0,
@@ -26,15 +27,15 @@ interface Hands {
 }
 
 const handValues = [
-  '2', '3', '4', '5',
+  'J', '2', '3', '4', '5',
   '6', '7', '8', '9',
-  'T', 'J', 'Q', 'K',
+  'T', 'Q', 'K',
   'A',
 ];
 
 function identifyHandType(hand: string): HandType {
   const cards = hand.split('');
-  const results = {};
+  const results: { [key: string]: number } = {};
   for (let i = 0; i < cards.length; i += 1) {
     const card = cards[i];
     if (results[card]) {
@@ -44,6 +45,18 @@ function identifyHandType(hand: string): HandType {
     }
   }
 
+  const jokers: number = results.J || 0;
+  // check if there are jokers and more than one card
+  if (jokers > 0 && Object.keys(results).length > 1) {
+    delete results.J;
+    const maxEntry = _.maxBy(_.toPairs(results), ([, value]) => (typeof value === 'number' ? value : -Infinity));
+    if (maxEntry) {
+      const [key] = maxEntry;
+      if (results[key]) {
+        results[key] += jokers;
+      }
+    }
+  }
   const values = Object.values(results);
 
   switch (true) {
@@ -69,6 +82,7 @@ function identifyHandType(hand: string): HandType {
     return HandTypes.HighCard;
     break;
   default:
+    console.log('Invalid hand:', hand);
     return HandTypes.Invalid;
     break;
   }
@@ -82,7 +96,7 @@ function sort(a: string, b: string): number {
 
 const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
 
-const filePath = path.join(__dirname, '..', 'input.txt');
+const filePath = path.join(__dirname, 'input.txt');
 
 console.time(puzzle);
 

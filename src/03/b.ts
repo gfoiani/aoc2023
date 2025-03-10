@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
-import { getPuzzleName } from '../../utils';
+import { getPuzzleName } from '../utils';
 
 const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
 
-const filePath = path.join(__dirname, '..', 'input.txt');
+const filePath = path.join(__dirname, 'input.txt');
 
 console.time(puzzle);
 const input = fs.readFileSync(filePath, { encoding: 'utf-8' }).trim().split('\n');

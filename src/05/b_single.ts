@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { min } from 'lodash';
 
-import { getPuzzleName } from '../../utils';
+import { getPuzzleName } from '../utils';
 
 interface CategoryMap {
   source: number;
@@ -12,7 +12,7 @@ interface CategoryMap {
 
 const puzzle = `Puzzle ${getPuzzleName(__dirname)}`;
 
-const filePath = path.join(__dirname, '..', 'input.txt');
+const filePath = path.join(__dirname, 'input.txt');
 
 console.time(puzzle);
 // split on empty lines
